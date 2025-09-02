@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'SignUpModel.dart';
 
 class SignUpApi {
-  static const String baseUrl = "http://10.112.215.78:8080/api/auth/signup";
+  static const String baseUrl = "http://api.vishalnayak.in/api/auth/signup";
 
   static Future<String> registerUser(SignUpModel user) async {
     try {

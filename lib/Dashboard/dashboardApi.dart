@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dashboardModel.dart';
 
 class DashboardApi {
-  static const String baseUrl = "http://10.112.215.78:8080"; 
+  static const String baseUrl = "http://api.vishalnayak.in"; 
   static Map<String, dynamic> parseJwt(String token) {
     final parts = token.split('.');
     if (parts.length != 3) {

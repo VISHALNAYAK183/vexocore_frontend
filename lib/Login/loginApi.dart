@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'loginModel.dart';
 
 class LoginApi {
-  static const String baseUrl = "http://10.112.215.78:8080/api/auth/login";
+  static const String baseUrl = "http://api.vishalnayak.in/api/auth/login";
 
   static Future<LoginResponse?> login(String email, String password) async {
     try {
