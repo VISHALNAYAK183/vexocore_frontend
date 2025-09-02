@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:task_manager/widgets/appBar.dart';
-import 'dashboardApi.dart'; // Your API file
-import 'dashboardModel.dart'; // Your model file
+import 'dashboardApi.dart'; 
+import 'dashboardModel.dart'; 
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -16,7 +16,8 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
-    _tasksFuture = DashboardApi.getTasksByUserId(); // fetch user id from JWT or SharedPreferences inside API
+    _tasksFuture = DashboardApi
+        .getTasksByUserId(); 
   }
 
   Future<void> _refreshTasks() async {
@@ -27,107 +28,111 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   void _showEditTaskDialog(Task task) {
-  final TextEditingController titleController = TextEditingController(text: task.title);
-  final TextEditingController descriptionController = TextEditingController(text: task.description);
+    final TextEditingController titleController =
+        TextEditingController(text: task.title);
+    final TextEditingController descriptionController =
+        TextEditingController(text: task.description);
 
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text("Edit Task"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: titleController,
-              decoration: const InputDecoration(labelText: "Title"),
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Edit Task"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleController,
+                decoration: const InputDecoration(labelText: "Title"),
+              ),
+              TextField(
+                controller: descriptionController,
+                decoration: const InputDecoration(labelText: "Description"),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); 
+              },
+              child: const Text("Cancel"),
             ),
-            TextField(
-              controller: descriptionController,
-              decoration: const InputDecoration(labelText: "Description"),
+            ElevatedButton(
+              onPressed: () async {
+                final updatedTitle = titleController.text.trim();
+                final updatedDescription = descriptionController.text.trim();
+
+                if (updatedTitle.isEmpty || updatedDescription.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Both fields are required")),
+                  );
+                  return;
+                }
+
+                try {
+                  await DashboardApi.updateTask(
+                      task.id, updatedTitle, updatedDescription);
+                  Navigator.of(context).pop(); 
+                  _refreshTasks();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Task updated successfully")),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Error: $e")),
+                  );
+                }
+              },
+              child: const Text("Submit"),
             ),
           ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // close dialog
-            },
-            child: const Text("Cancel"),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final updatedTitle = titleController.text.trim();
-              final updatedDescription = descriptionController.text.trim();
+        );
+      },
+    );
+  }
 
-              if (updatedTitle.isEmpty || updatedDescription.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Both fields are required")),
-                );
-                return;
-              }
-
-              try {
-                await DashboardApi.updateTask(task.id, updatedTitle, updatedDescription);
-                Navigator.of(context).pop(); // close dialog
-                _refreshTasks(); // refresh list
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Task updated successfully")),
-                );
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Error: $e")),
-                );
-              }
-            },
-            child: const Text("Submit"),
-          ),
-        ],
-      );
-    },
-  );
-}
-void _showDeleteTaskDialog(int taskId) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text("Delete Task"),
-        content: const Text("Are you sure you want to delete this task?"),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // close dialog
-            },
-            child: const Text("Cancel"),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              try {
-                await DashboardApi.deleteTask(taskId);
-                Navigator.of(context).pop(); // close dialog
-                _refreshTasks(); // refresh the task list
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Task deleted successfully")),
-                );
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Error deleting task: $e")),
-                );
-              }
-            },
-            child: const Text("Delete"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+  void _showDeleteTaskDialog(int taskId) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Delete Task"),
+          content: const Text("Are you sure you want to delete this task?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Cancel"),
             ),
-          ),
-        ],
-      );
-    },
-  );
-}
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  await DashboardApi.deleteTask(taskId);
+                  Navigator.of(context).pop(); 
+                  _refreshTasks(); 
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Task deleted successfully")),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Error deleting task: $e")),
+                  );
+                }
+              },
+              child: const Text("Delete"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
- void _showAddTaskDialog() {
+  void _showAddTaskDialog() {
     final _titleController = TextEditingController();
     final _descriptionController = TextEditingController();
     final _formKey = GlobalKey<FormState>();
@@ -153,8 +158,9 @@ void _showDeleteTaskDialog(int taskId) {
                   TextFormField(
                     controller: _descriptionController,
                     decoration: const InputDecoration(labelText: "Description"),
-                    validator: (value) =>
-                        value == null || value.isEmpty ? "Enter description" : null,
+                    validator: (value) => value == null || value.isEmpty
+                        ? "Enter description"
+                        : null,
                   ),
                 ],
               ),
@@ -195,12 +201,14 @@ void _showDeleteTaskDialog(int taskId) {
       },
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       appBar:  CustomAppBar(
+      appBar: CustomAppBar(
         title: "Active Tasks",
-        showBackButton: true,
+        showBackButton: false,
+        showLogout: true,
       ),
       body: FutureBuilder<List<Task>>(
         future: _tasksFuture,
@@ -223,97 +231,95 @@ void _showDeleteTaskDialog(int taskId) {
             );
           } else {
             final tasks = snapshot.data!;
-             return RefreshIndicator(
-            onRefresh: () async {
-              // Reload the tasks
-              setState(() {
-                _tasksFuture = DashboardApi.getTasksByUserId();
-              });
-              // Wait for the Future to complete before ending refresh
-              await _tasksFuture;
-            },
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              itemCount: tasks.length,
-              itemBuilder: (context, index) {
-                final task = tasks[index];
-                // Only display active tasks
-                if (task.active != "Y") return const SizedBox.shrink();
-
-                return Container(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.green.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                    border: Border.all(
-                      color: Colors.green.withOpacity(0.2),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                     IconButton(
-                      onPressed: () {
-                        _showEditTaskDialog(task); // pass the current task
-                      },
-                      icon: const Icon(
-                        Icons.edit,
-                        color: Colors.green,
-                        size: 24,
-                      ),
-                    ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              task.title,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              task.description,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                       IconButton(
-      onPressed: () {
-        _showDeleteTaskDialog(task.id);
-      },
-      icon: const Icon(
-        Icons.delete,
-        color: Colors.red,
-        size: 24,
-      ),
-    ),
-                    ],
-                  ),
-                );
+            return RefreshIndicator(
+              onRefresh: () async {
+                setState(() {
+                  _tasksFuture = DashboardApi.getTasksByUserId();
+                });
+                await _tasksFuture;
               },
-            ),
+              child: ListView.builder(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                itemCount: tasks.length,
+                itemBuilder: (context, index) {
+                  final task = tasks[index];
+                  if (task.active != "Y") return const SizedBox.shrink();
+
+                  return Container(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.green.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                      border: Border.all(
+                        color: Colors.green.withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            _showEditTaskDialog(task); 
+                          },
+                          icon: const Icon(
+                            Icons.edit,
+                            color: Colors.green,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                task.title,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                task.description,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            _showDeleteTaskDialog(task.id);
+                          },
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                            size: 24,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             );
           }
         },
       ),
-     floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
         onPressed: _showAddTaskDialog,
         backgroundColor: Colors.green[700],
         foregroundColor: Colors.white,

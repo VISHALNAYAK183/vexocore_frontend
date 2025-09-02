@@ -23,7 +23,6 @@ class _SignupPageState extends State<SignupPage> {
   bool _isLoading = false;
   bool _obscurePassword = true;
 
-  // List of genders for dropdown
   final List<String> _genders = ['Male', 'Female', 'Other'];
 
 void _handleSignup() async {
@@ -47,7 +46,7 @@ void _handleSignup() async {
       _isLoading = false;
     });
 
-    // Show result in Snackbar
+  
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(responseMessage)),
     );
