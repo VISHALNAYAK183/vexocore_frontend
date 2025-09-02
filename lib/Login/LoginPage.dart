@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task_manager/Dashboard/dashboard.dart';
+import 'package:task_manager/SignUpPage/SignUpPage.dart';
 import 'package:task_manager/widgets/app_colors.dart';
 import 'loginApi.dart';
 import 'loginModel.dart';
@@ -146,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                   : ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primarycolor,
-                        foregroundColor: Colors.white,
+                        foregroundColor: textColorPrimary,
                         minimumSize: const Size(double.infinity, 50),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -160,6 +161,33 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
               const SizedBox(height: 20),
+              Row(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    const Text(
+      "Don't have an account? ",
+      style: TextStyle(fontSize: 14, color: Colors.black54),
+    ),
+    GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SignupPage()),
+        );
+      },
+      child: const Text(
+        "Sign up",
+        style: TextStyle(
+          fontSize: 14,
+          color: Colors.blue,
+          fontWeight: FontWeight.bold,
+          decoration: TextDecoration.underline,
+        ),
+      ),
+    ),
+  ],
+),
+const SizedBox(height: 20),
             ],
           ),
         ),
