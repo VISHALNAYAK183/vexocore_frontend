@@ -18,6 +18,7 @@ class LoginApi {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        print("Data${data}");
         return LoginResponse.fromJson(data);
       } else {
         return null;

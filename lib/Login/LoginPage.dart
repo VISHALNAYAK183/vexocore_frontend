@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:task_manager/Dashboard/dashboard.dart';
 import 'package:task_manager/widgets/app_colors.dart';
 import 'loginApi.dart';
 import 'loginModel.dart';
@@ -39,8 +40,10 @@ class _LoginPageState extends State<LoginPage> {
             const SnackBar(content: Text("Login successful!")),
           );
 
-          // Navigate to Home/Dashbo
-          Navigator.pushReplacementNamed(context, "/home");
+          Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const DashboardPage()),
+                    );
         }
       } else {
         if (mounted) {
