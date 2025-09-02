@@ -56,4 +56,32 @@ class DashboardApi {
       rethrow;
     }
   }
+
+   static Future<Task> addTask(String title, String description) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("auth_token");
+
+    if (token == null) throw Exception("User not logged in or token missing");
+
+    final url = Uri.parse("$baseUrl/api/tasks");
+    final response = await http.post(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+      body: jsonEncode({
+        "title": title,
+        "description": description,
+      }),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final data = json.decode(response.body);
+      return Task.fromJson(data);
+    } else {
+      throw Exception(
+          "Failed to create task: ${response.statusCode} ${response.body}");
+    }
+  }
 }
