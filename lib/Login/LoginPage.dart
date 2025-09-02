@@ -5,6 +5,7 @@ import 'package:task_manager/SignUpPage/SignUpPage.dart';
 import 'package:task_manager/widgets/app_colors.dart';
 import 'loginApi.dart';
 import 'loginModel.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -32,7 +33,6 @@ class _LoginPageState extends State<LoginPage> {
       final response = await LoginApi.login(email, password);
 
       if (response != null) {
-     
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString("auth_token", response.token);
 
@@ -42,24 +42,35 @@ class _LoginPageState extends State<LoginPage> {
           );
 
           Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const DashboardPage()),
-                    );
+            context,
+            MaterialPageRoute(builder: (_) => const DashboardPage()),
+          );
         }
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Invalid email or password")),
-          );
+          AwesomeDialog(
+            context: context,
+            dialogType: DialogType.error,
+            animType: AnimType.rightSlide,
+            title: 'Login Failed',
+            desc: 'Invalid email or password',
+            btnOkOnPress: () {},
+            btnOkColor: Colors.red,
+          ).show();
         }
       }
     } catch (e) {
       if (mounted) {
-         print("Error: $e");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: $e")),
-         
-        );
+        print("Error: $e");
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.error,
+          animType: AnimType.rightSlide,
+          title: 'Login Failed',
+          desc: 'Invalid email or password',
+          btnOkOnPress: () {},
+          btnOkColor: Colors.red,
+        ).show();
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -162,32 +173,32 @@ class _LoginPageState extends State<LoginPage> {
                     ),
               const SizedBox(height: 20),
               Row(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: [
-    const Text(
-      "Don't have an account? ",
-      style: TextStyle(fontSize: 14, color: Colors.black54),
-    ),
-    GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => SignupPage()),
-        );
-      },
-      child: const Text(
-        "Sign up",
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.blue,
-          fontWeight: FontWeight.bold,
-          decoration: TextDecoration.underline,
-        ),
-      ),
-    ),
-  ],
-),
-const SizedBox(height: 20),
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    "Don't have an account? ",
+                    style: TextStyle(fontSize: 14, color: Colors.black54),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SignupPage()),
+                      );
+                    },
+                    child: const Text(
+                      "Sign up",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
