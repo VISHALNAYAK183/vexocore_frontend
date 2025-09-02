@@ -84,4 +84,57 @@ class DashboardApi {
           "Failed to create task: ${response.statusCode} ${response.body}");
     }
   }
+
+
+static Future<Task> updateTask(int taskId, String title, String description) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString("auth_token");
+
+  if (token == null) {
+    throw Exception("User not logged in or token missing");
+  }
+
+  final url = Uri.parse("$baseUrl/api/tasks/$taskId");
+
+  final response = await http.put(
+    url,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    },
+    body: json.encode({
+      "title": title,
+      "description": description,
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    return Task.fromJson(json.decode(response.body));
+  } else {
+    throw Exception("Failed to update task: ${response.statusCode}");
+  }
+}
+static Future<void> deleteTask(int taskId) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString("auth_token");
+
+  if (token == null) {
+    throw Exception("User not logged in or token missing");
+  }
+
+  final url = Uri.parse("$baseUrl/api/tasks/$taskId");
+
+  final response = await http.delete(
+    url,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    },
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception("Failed to delete task: ${response.statusCode}");
+  }
+}
+
 }

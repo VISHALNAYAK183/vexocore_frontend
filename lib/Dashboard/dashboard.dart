@@ -25,6 +25,108 @@ class _DashboardPageState extends State<DashboardPage> {
     });
     await _tasksFuture;
   }
+
+  void _showEditTaskDialog(Task task) {
+  final TextEditingController titleController = TextEditingController(text: task.title);
+  final TextEditingController descriptionController = TextEditingController(text: task.description);
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text("Edit Task"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleController,
+              decoration: const InputDecoration(labelText: "Title"),
+            ),
+            TextField(
+              controller: descriptionController,
+              decoration: const InputDecoration(labelText: "Description"),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // close dialog
+            },
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final updatedTitle = titleController.text.trim();
+              final updatedDescription = descriptionController.text.trim();
+
+              if (updatedTitle.isEmpty || updatedDescription.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Both fields are required")),
+                );
+                return;
+              }
+
+              try {
+                await DashboardApi.updateTask(task.id, updatedTitle, updatedDescription);
+                Navigator.of(context).pop(); // close dialog
+                _refreshTasks(); // refresh list
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Task updated successfully")),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Error: $e")),
+                );
+              }
+            },
+            child: const Text("Submit"),
+          ),
+        ],
+      );
+    },
+  );
+}
+void _showDeleteTaskDialog(int taskId) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text("Delete Task"),
+        content: const Text("Are you sure you want to delete this task?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // close dialog
+            },
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              try {
+                await DashboardApi.deleteTask(taskId);
+                Navigator.of(context).pop(); // close dialog
+                _refreshTasks(); // refresh the task list
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Task deleted successfully")),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Error deleting task: $e")),
+                );
+              }
+            },
+            child: const Text("Delete"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
+
  void _showAddTaskDialog() {
     final _titleController = TextEditingController();
     final _descriptionController = TextEditingController();
@@ -158,16 +260,16 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                   child: Row(
                     children: [
-                      IconButton(
-                        onPressed: () {
-                          // Edit functionality
-                        },
-                        icon: const Icon(
-                          Icons.edit,
-                          color: Colors.green,
-                          size: 24,
-                        ),
+                     IconButton(
+                      onPressed: () {
+                        _showEditTaskDialog(task); // pass the current task
+                      },
+                      icon: const Icon(
+                        Icons.edit,
+                        color: Colors.green,
+                        size: 24,
                       ),
+                    ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -192,6 +294,16 @@ class _DashboardPageState extends State<DashboardPage> {
                           ],
                         ),
                       ),
+                       IconButton(
+      onPressed: () {
+        _showDeleteTaskDialog(task.id);
+      },
+      icon: const Icon(
+        Icons.delete,
+        color: Colors.red,
+        size: 24,
+      ),
+    ),
                     ],
                   ),
                 );
